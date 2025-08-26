@@ -1,14 +1,20 @@
 FROM node:20.17.0-alpine3.19 as builder
 
-COPY . /tmp
-WORKDIR /tmp
+# Define o diretório de trabalho
+WORKDIR /app
 
-RUN npm i && npm run build
+# Copia o package.json e package-lock.json (ou yarn.lock)
+COPY package.json ./
+COPY package-lock.json ./
 
-FROM node:20.17.0-alpine3.19
+RUN npm install
+COPY . .
 
-COPY --from=builder /tmp/build/static ./build/static 
+# Gera a build de produção
+RUN npm run build
+FROM nginx:1.25-alpine
 
-EXPOSE 3001
+COPY --from=builder /app/build /usr/share/nginx/html
 
-CMD ["npm", "start"]
+# Expõe a porta 80 (padrão do NGINX)
+EXPOSE 80
