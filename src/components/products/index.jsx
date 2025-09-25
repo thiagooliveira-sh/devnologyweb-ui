@@ -11,7 +11,7 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3001/products/search?region=all"
+          `${process.env.REACT_APP_API_URL}/auth/verify-auth`
         );
 
         if (!response.ok) {
