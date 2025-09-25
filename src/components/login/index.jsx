@@ -28,7 +28,7 @@ function LoginPage() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}:3001/auth/login`, {
         username: formData.email,
         password: md5(formData.password)
       }, {
@@ -60,7 +60,7 @@ function LoginPage() {
         password: md5(formData.password)
       };
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/person`, userData, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}:3001/person`, userData, {
         headers: {
           "Content-Type": "application/json",
         }

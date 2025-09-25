@@ -15,7 +15,7 @@ function Header() {
     const verifyAuth = async () => {
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/auth/verify-auth`,
+          `${process.env.REACT_APP_API_URL}:3001/auth/verify-auth`,
           {},
           {
             withCredentials: true,
@@ -48,7 +48,7 @@ function Header() {
   const handleLogoutClick = async () => {
     try {
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/logout`,
+        `${process.env.REACT_APP_API_URL}:3001/auth/logout`,
         {},
         {
           withCredentials: true,

@@ -11,7 +11,7 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/auth/verify-auth`
+          `${process.env.REACT_APP_API_URL}:3001/auth/verify-auth`
         );
 
         if (!response.ok) {
