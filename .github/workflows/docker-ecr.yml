@@ -2,15 +2,16 @@ name: Docker build & push to ECR
 
 on:
   push:
-    branches: [ main ]
-    paths: 
-      - 'Dockerfile'
-      - '.github/workflows/docker-ecr.yml'
+    branches:
+      - main
   workflow_dispatch:
 
 env:
   AWS_REGION: sa-east-1
   ECR_REPOSITORY: devnologyweb-ui
+  ECS_CLUSTER: devnology-cluster
+  ECS_SERVICE: devnology-web-ui-service
+  ECS_TASK_DEFINITION_FAMILY: devnologyweb-ui-task
 
 jobs:
   build-and-push:
@@ -37,3 +38,40 @@ jobs:
           push: true
           tags: |
             416997488095.dkr.ecr.sa-east-1.amazonaws.com/devnologyweb-ui:${{ github.sha }}
+
+      - name: Download and filter task definition
+        id: task-def
+        run: |
+          # Baixa a definição da tarefa e extrai o objeto 'taskDefinition'
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION_FAMILY }} --query taskDefinition > task-definition.json
+
+          jq --arg IMAGE_URI "${{ steps.build-image.outputs.image }}" \
+             '{
+                family: .family,
+                containerDefinitions: (.containerDefinitions | .[0].image = $IMAGE_URI | .),
+                executionRoleArn: .executionRoleArn,
+                networkMode: .networkMode,
+                volumes: .volumes,
+                placementConstraints: .placementConstraints,
+                requiresCompatibilities: .requiresCompatibilities,
+                cpu: .cpu,
+                memory: .memory,
+                taskRoleArn: .taskRoleArn
+              }' \
+             task-definition.json > new-task-definition.json
+
+      - name: Register new task definition
+        id: register-task-definition
+        run: |
+          TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://new-task-definition.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "task_definition_arn=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
+
+      - name: Update Amazon ECS service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --task-definition ${{ steps.register-task-definition.outputs.task_definition_arn }} \
+            --force-new-deployment
