@@ -22,7 +22,7 @@ const Cart = ({ isVisible, setIsVisible }) => {
     const verifyToken = async () => {
       try {
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}:3001/auth/verify-auth`,
+          "http://devnology-alb-1825440527.sa-east-1.elb.amazonaws.com:3001/auth/verify-auth",
           {},
           { withCredentials: true }
         );
@@ -87,7 +87,7 @@ const Cart = ({ isVisible, setIsVisible }) => {
         ),
       };
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}:3001/sales`, saleData, {
+      const response = await axios.post("http://devnology-alb-1825440527.sa-east-1.elb.amazonaws.com:3001/sales", saleData, {
         headers: {
           "Content-Type": "application/json",
         },

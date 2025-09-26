@@ -11,7 +11,7 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}:3001/auth/verify-auth`
+          "http://devnology-alb-1825440527.sa-east-1.elb.amazonaws.com:3001/products/search?region=all"
         );
 
         if (!response.ok) {
