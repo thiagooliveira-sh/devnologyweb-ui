@@ -30,14 +30,15 @@ jobs:
       - name: Login no ECR
         uses: aws-actions/amazon-ecr-login@v2
       
-      - name: Build e push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            416997488095.dkr.ecr.sa-east-1.amazonaws.com/devnologyweb-ui:${{ github.sha }}
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Download and filter task definition
         id: task-def
